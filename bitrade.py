@@ -1,4 +1,5 @@
 # encoding: utf8
+import json
 import logging
 import os
 
@@ -16,15 +17,15 @@ c = tornadoredis.Client()
 c.connect()
 
 
-class Order:
-    def __init__(self, msg):
+class Order(object):
+    def __init__(self, data):
         self.id = uuid4().hex
         self.time = str(int(time() * 1000))  # ms resolution
-        self.client, self.type, self.price, self.amount = msg.split('|')
+        for key in data:
+            setattr(self, key, data[key])
 
     def __unicode__(self):
-        fields = [self.id, self.time, self.client, self.type, self.price, self.amount]
-        return '|'.join(fields)
+        return json.dumps(self.__dict__)
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -46,7 +47,7 @@ class OrderHandler(tornado.websocket.WebSocketHandler):
 
     @tornado.gen.engine
     def on_message(self, msg):
-        order = Order(msg)
+        order = Order(json.loads(msg))
         with c.pipeline() as pipe:
             order_str = unicode(order)
             pipe.zadd('order_log', order.time, order_str)

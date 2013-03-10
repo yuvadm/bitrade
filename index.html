@@ -24,13 +24,16 @@
         }
 
         $('#order-submit').click(function() {
-          console.log('presub');
           var type = $('input:radio[name=type]:checked').val();
           var price = $('#order-price').val();
           var amount = $('#order-amount').val();
-          var order = client_id + '|' + type + '|' + price + '|' + amount
-          ws.send(order);
-          console.log('postsub');
+          var order = {
+            type: type,
+            amount: amount,
+            price: price,
+            client: client_id
+          };
+          ws.send(JSON.stringify(order));
           return false;
         });
       });
