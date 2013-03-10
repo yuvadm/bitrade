@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>{{ title }}</title>
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        function show_message(msg){
+          $('#messages').prepend('<p>' + msg + '<p>');
+        }
+
+        var ws = new WebSocket('ws://127.0.0.1:9000/orders');
+        ws.onopen = function() {
+          show_message('B⃦ Connected.');
+        }
+        ws.onmessage = function(event) {
+          show_message('B⃦ ' + event.data);
+        }
+        ws.onclose = function() {
+          show_message('B⃦ Closed.');
+        }
+
+        $('#order').click(function() {
+          var order = $('#order-msg').val();
+          ws.send(order);
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+
+    <h1>{{ title }}</h1>
+    <h2>Order</h2>
+    <p>
+      <input id="order-msg" value=""/>
+      <input id="order" type="submit" value="Send Order"/>
+    </p>
+
+    <h2>Messages</h2>
+    <div id="messages"></div>
+
+  </body>
+</html>

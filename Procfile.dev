@@ -1,0 +1,2 @@
+redis: redis-server
+tornado: python bitrade.py
