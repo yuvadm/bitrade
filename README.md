@@ -1,6 +1,6 @@
 # Bitrade
 
-A <strike>highly-concurrent, fault-tolerant, malicious-user-proof,</strike> Python-based bitcoin trading server.
+A ~~highly-concurrent, fault-tolerant, malicious-user-proof,~~ Python-based bitcoin trading server.
 
 Eat this, Mt.Gox - now how you gonna act?
 
