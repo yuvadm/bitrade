@@ -1,4 +1,5 @@
 # encoding: utf8
+import logging
 import os
 
 import tornado.httpserver
@@ -8,6 +9,8 @@ import tornado.ioloop
 import tornado.gen
 import tornadoredis
 
+from time import time
+from uuid import uuid4
 
 c = tornadoredis.Client()
 c.connect()
@@ -30,8 +33,15 @@ class OrderHandler(tornado.websocket.WebSocketHandler):
         yield tornado.gen.Task(self.client.subscribe, 'test_channel')
         self.client.listen(self.on_order)
 
+    @tornado.gen.engine
     def on_message(self, msg):
-        c.publish('test_channel', msg)
+        order_time = time()
+        order_id = uuid4().hex
+        order = '{}|{}'.format(order_id, msg)
+        with c.pipeline() as pipe:
+            pipe.zadd('order_log', order_time, order)
+            pipe.publish('test_channel', order)
+            yield tornado.gen.Task(pipe.execute)
 
     def on_order(self, msg):
         if msg.kind == 'message':

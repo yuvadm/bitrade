@@ -6,6 +6,8 @@
     <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script>
       $(document).ready(function() {
+        var client_id = Math.random().toString(36).substring(7);
+
         function show_message(msg){
           $('#messages').prepend('<p>' + msg + '<p>');
         }
@@ -21,9 +23,15 @@
           show_message('B⃦ Closed.');
         }
 
-        $('#order').click(function() {
-          var order = $('#order-msg').val();
+        $('#order-submit').click(function() {
+          console.log('presub');
+          var type = $('input:radio[name=type]:checked').val();
+          var price = $('#order-price').val();
+          var amount = $('#order-amount').val();
+          var order = client_id + '|' + type + '|' + price + '|' + amount
           ws.send(order);
+          console.log('postsub');
+          return false;
         });
       });
     </script>
@@ -34,8 +42,12 @@
     <h1>{{ title }}</h1>
     <h2>Order</h2>
     <p>
-      <input id="order-msg" value=""/>
-      <input id="order" type="submit" value="Send Order"/>
+      <form id="order-form">
+      <input id="order-bid" type="radio" name="type" value="bid">Buy (bid)</input>
+      <input id="order-ask" type="radio" name="type" value="ask">Sell (ask)</input>
+      <input id="order-price" name="price" placeholder="Price" value=""/>
+      <input id="order-amount" name="amount" placeholder="Amount" value=""/>
+      <input id="order-submit" type="submit" value="Send Order"/>
     </p>
 
     <h2>Messages</h2>
