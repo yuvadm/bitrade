@@ -31,16 +31,13 @@ class OrderHandler(tornado.websocket.WebSocketHandler):
         self.client.listen(self.on_order)
 
     def on_message(self, msg):
-        print 'message'
         c.publish('test_channel', msg)
 
     def on_order(self, msg):
-        print 'order'
         if msg.kind == 'message':
             self.write_message(str(msg.body))
 
     def close(self):
-        print 'closed'
         self.client.unsubscribe('test_channel')
         self.client.disconnect()
 
