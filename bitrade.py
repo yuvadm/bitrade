@@ -16,6 +16,17 @@ c = tornadoredis.Client()
 c.connect()
 
 
+class Order:
+    def __init__(self, msg):
+        self.id = uuid4().hex
+        self.time = str(int(time() * 1000))  # ms resolution
+        self.client, self.type, self.price, self.amount = msg.split('|')
+
+    def __unicode__(self):
+        fields = [self.id, self.time, self.client, self.type, self.price, self.amount]
+        return '|'.join(fields)
+
+
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('index.html', title='OHAI BITRADE SERVER')
@@ -35,12 +46,11 @@ class OrderHandler(tornado.websocket.WebSocketHandler):
 
     @tornado.gen.engine
     def on_message(self, msg):
-        order_time = time()
-        order_id = uuid4().hex
-        order = '{}|{}'.format(order_id, msg)
+        order = Order(msg)
         with c.pipeline() as pipe:
-            pipe.zadd('order_log', order_time, order)
-            pipe.publish('test_channel', order)
+            order_str = unicode(order)
+            pipe.zadd('order_log', order.time, order_str)
+            pipe.publish('test_channel', order_str)
             yield tornado.gen.Task(pipe.execute)
 
     def on_order(self, msg):
