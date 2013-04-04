@@ -51,6 +51,7 @@ class OrderHandler(tornado.websocket.WebSocketHandler):
         with c.pipeline() as pipe:
             order_str = unicode(order)
             pipe.zadd('order_log', order.time, order_str)
+            pipe.zadd(order.type + '_list', order.price, order_str)
             pipe.publish('test_channel', order_str)
             yield tornado.gen.Task(pipe.execute)
 
